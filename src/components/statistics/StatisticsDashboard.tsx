@@ -44,6 +44,7 @@ interface StatisticsDashboardProps {
 export function StatisticsDashboard({ orders, selectedPeriod, selectedVehicle }: StatisticsDashboardProps) {
   const t = useTranslations('statistics')
   const tcd = useTranslations('countryDelivery')
+  const topt = useTranslations('options')
 
   const tabsRef = useRef<HTMLDivElement>(null)
 
@@ -51,6 +52,18 @@ export function StatisticsDashboard({ orders, selectedPeriod, selectedVehicle }:
     () => calculateStatistics(orders, selectedPeriod, selectedVehicle === 'all' ? undefined : selectedVehicle),
     [orders, selectedPeriod, selectedVehicle]
   )
+
+  const translateDist = (data: typeof stats.rangeDistribution, prefix: string) =>
+    data.map(d => {
+      const key = `${prefix}.${d.name}`
+      return { ...d, name: topt.has(key) ? topt(key) : d.name }
+    })
+
+  const rangeDistribution = useMemo(() => translateDist(stats.rangeDistribution, 'range'), [stats.rangeDistribution, topt])
+  const interiorDistribution = useMemo(() => translateDist(stats.interiorDistribution, 'interior'), [stats.interiorDistribution, topt])
+  const towHitchDistribution = useMemo(() => translateDist(stats.towHitchDistribution, 'towHitch'), [stats.towHitchDistribution, topt])
+  const autopilotDistribution = useMemo(() => translateDist(stats.autopilotDistribution, 'autopilot'), [stats.autopilotDistribution, topt])
+  const seatsDistribution = useMemo(() => translateDist(stats.seatsDistribution, 'seats'), [stats.seatsDistribution, topt])
 
   return (
     <motion.div
@@ -197,7 +210,7 @@ export function StatisticsDashboard({ orders, selectedPeriod, selectedVehicle }:
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <MiniPieChart data={stats.modelDistribution} title={t('modelDistribution')} delay={0} />
               <MiniPieChart data={stats.driveDistribution} title={t('driveDistribution')} delay={0.05} />
-              <MiniPieChart data={stats.rangeDistribution} title={t('rangeDistribution')} delay={0.1} />
+              <MiniPieChart data={rangeDistribution} title={t('rangeDistribution')} delay={0.1} />
               <MiniPieChart data={stats.colorDistribution} title={t('colorDistribution')} delay={0.15} />
             </div>
           </motion.div>
@@ -212,11 +225,11 @@ export function StatisticsDashboard({ orders, selectedPeriod, selectedVehicle }:
             transition={{ duration: 0.2 }}
           >
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <MiniPieChart data={stats.interiorDistribution} title={t('interiorDistribution')} delay={0} />
+              <MiniPieChart data={interiorDistribution} title={t('interiorDistribution')} delay={0} />
               <MiniPieChart data={stats.wheelsDistribution} title={t('wheelsDistribution')} delay={0.05} />
-              <MiniPieChart data={stats.towHitchDistribution} title={t('towHitchDistribution')} delay={0.1} />
-              <MiniPieChart data={stats.seatsDistribution} title={t('seatsDistribution')} delay={0.15} />
-              <MiniPieChart data={stats.autopilotDistribution} title={t('autopilotDistribution')} delay={0.2} />
+              <MiniPieChart data={towHitchDistribution} title={t('towHitchDistribution')} delay={0.1} />
+              <MiniPieChart data={seatsDistribution} title={t('seatsDistribution')} delay={0.15} />
+              <MiniPieChart data={autopilotDistribution} title={t('autopilotDistribution')} delay={0.2} />
             </div>
           </motion.div>
         </TabsContent>
@@ -291,7 +304,7 @@ export function StatisticsDashboard({ orders, selectedPeriod, selectedVehicle }:
                             <TableCell className="font-medium tabular-nums">
                               {i === 0 ? '\u{1F947}' : i === 1 ? '\u{1F948}' : i === 2 ? '\u{1F949}' : i + 1}
                             </TableCell>
-                            <TableCell>{row.country}</TableCell>
+                            <TableCell>{topt.has(`country.${row.country}`) ? topt(`country.${row.country}`) : row.country}</TableCell>
                             <TableCell className="text-right tabular-nums font-medium">{row.medianDays}d</TableCell>
                             <TableCell className="text-right tabular-nums">{row.count}</TableCell>
                           </TableRow>

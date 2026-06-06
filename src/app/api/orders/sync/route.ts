@@ -180,6 +180,7 @@ function normalizeCountry(country: string | null): string | null {
     'italien': 'it',
     'italy': 'it',
     'spanien': 'es',
+    'spanje': 'es',
     'spain': 'es',
     'portugal': 'pt',
     'polen': 'pl',

@@ -51,6 +51,7 @@ export default async function TrackPage({ params, searchParams }: { params: Prom
 
   const t = await getTranslations({ locale, namespace: 'tracking' })
   const tp = await getTranslations({ locale, namespace: 'progress' })
+  const topt = await getTranslations({ locale, namespace: 'options' })
 
   // Fetch all non-archived orders and settings
   const [allOrders, settings] = await Promise.all([
@@ -223,10 +224,12 @@ export default async function TrackPage({ params, searchParams }: { params: Prom
     }
   }
 
-  // Resolve internal values to display labels
-  const resolve = (value: string | null, options: { value: string; label: string }[]): string | null => {
+  // Resolve internal values to display labels (translated when available)
+  const resolveLabel = (value: string | null, prefix: string, fallbackOptions: { value: string; label: string }[]): string | null => {
     if (!value) return null
-    const match = options.find(o => o.value === value || o.label.toLowerCase() === value.toLowerCase())
+    const key = `${prefix}.${value}`
+    if (topt.has(key)) return topt(key)
+    const match = fallbackOptions.find(o => o.value === value || o.label.toLowerCase() === value.toLowerCase())
     return match?.label || value
   }
 
@@ -236,16 +239,16 @@ export default async function TrackPage({ params, searchParams }: { params: Prom
   const detailFields: { label: string; value: string | null }[] = [
     { label: t('orderDate'), value: order.orderDate },
     { label: t('vehicle'), value: order.vehicleType },
-    { label: t('model'), value: resolve(order.model, allTrims) },
-    { label: t('range'), value: resolve(order.range, RANGES) },
-    { label: t('drive'), value: resolve(order.drive, DRIVES) },
+    { label: t('model'), value: resolveLabel(order.model, 'model', allTrims) },
+    { label: t('range'), value: resolveLabel(order.range, 'range', RANGES) },
+    { label: t('drive'), value: resolveLabel(order.drive, 'drive', DRIVES) },
     { label: t('color'), value: colorInfo?.label || order.color },
-    { label: t('interior'), value: resolve(order.interior, INTERIORS) },
+    { label: t('interior'), value: resolveLabel(order.interior, 'interior', INTERIORS) },
     { label: t('wheels'), value: order.wheels ? `${order.wheels}"` : null },
-    { label: t('towHitch'), value: resolve(order.towHitch, TOW_HITCH_OPTIONS) },
-    { label: t('seats'), value: resolve(order.seats, SEATS_OPTIONS) },
-    { label: t('autopilot'), value: resolve(order.autopilot, AUTOPILOT_OPTIONS) },
-    { label: t('country'), value: countryInfo?.label || order.country },
+    { label: t('towHitch'), value: resolveLabel(order.towHitch, 'towHitch', TOW_HITCH_OPTIONS) },
+    { label: t('seats'), value: resolveLabel(order.seats, 'seats', SEATS_OPTIONS) },
+    { label: t('autopilot'), value: resolveLabel(order.autopilot, 'autopilot', AUTOPILOT_OPTIONS) },
+    { label: t('country'), value: topt.has(`country.${order.country}`) ? topt(`country.${order.country}`) : (countryInfo?.label || order.country) },
     { label: t('deliveryWindow'), value: order.deliveryWindow },
     { label: t('deliveryLocation'), value: order.deliveryLocation },
     { label: t('vin'), value: order.vin },
@@ -288,14 +291,14 @@ export default async function TrackPage({ params, searchParams }: { params: Prom
       detailFields={detailFields}
       durationFields={durationFields}
       colorInfo={colorInfo ? { hex: colorInfo.hex, border: colorInfo.border, label: colorInfo.label } : null}
-      countryInfo={countryInfo ? { label: countryInfo.label, flag: countryInfo.flag } : null}
+      countryInfo={countryInfo ? { label: topt.has(`country.${order.country}`) ? topt(`country.${order.country}`) : countryInfo.label, flag: countryInfo.flag } : null}
       donationUrl={settings?.donationUrl}
       paypalUrl={settings?.paypalUrl}
       resolvedLabels={{
-        model: resolve(order.model, allTrims),
-        range: resolve(order.range, RANGES),
-        drive: resolve(order.drive, DRIVES),
-        interior: resolve(order.interior, INTERIORS),
+        model: resolveLabel(order.model, 'model', allTrims),
+        range: resolveLabel(order.range, 'range', RANGES),
+        drive: resolveLabel(order.drive, 'drive', DRIVES),
+        interior: resolveLabel(order.interior, 'interior', INTERIORS),
       }}
     />
   )

@@ -429,6 +429,7 @@ export const OrderTable = memo(function OrderTable({ orders, isAdmin, onEdit, on
   const t = useTranslations('table')
   const tc = useTranslations('common')
   const th = useTranslations('home')
+  const topt = useTranslations('options')
 
   // Default sort: orderDate ascending (oldest first, newest at bottom)
   const [sortField, setSortField] = useState<SortField>('orderDate')
@@ -1118,7 +1119,7 @@ export const OrderTable = memo(function OrderTable({ orders, isAdmin, onEdit, on
                   <TableCell className="whitespace-nowrap">
                     {order.range ? (
                       <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
-                        {getLabel(ranges, order.range) === 'Maximale Reichweite' ? 'Max. RW' : getLabel(ranges, order.range)}
+                        {getLabel(ranges, order.range)}
                       </Badge>
                     ) : '-'}
                   </TableCell>
@@ -1159,7 +1160,7 @@ export const OrderTable = memo(function OrderTable({ orders, isAdmin, onEdit, on
                 )}
                 {isColumnVisible('seats') && (
                   <TableCell className="whitespace-nowrap">
-                    {order.seats ? getLabel(seatsOptions, order.seats) : '5-Sitzer'}
+                    {order.seats ? getLabel(seatsOptions, order.seats) : topt('seats.5')}
                   </TableCell>
                 )}
                 {isColumnVisible('autopilot') && (

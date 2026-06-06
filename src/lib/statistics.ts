@@ -1,4 +1,4 @@
-import { Order, COLORS, COUNTRIES, VehicleType, MODEL_Y_TRIMS, MODEL_3_TRIMS, RANGES, DRIVES, INTERIORS, AUTOPILOT_OPTIONS, TOW_HITCH_OPTIONS, SEATS_OPTIONS } from './types'
+import { Order, COLORS, COUNTRIES, VehicleType, MODEL_Y_TRIMS, MODEL_3_TRIMS, DRIVES } from './types'
 
 // Build COUNTRY_NAMES from the canonical COUNTRIES constant to stay in sync
 const COUNTRY_NAMES: Record<string, string> = Object.fromEntries(
@@ -37,6 +37,23 @@ function normalizeCountry(country: string | null | undefined): string {
   }
 
   // Return as-is if no pattern matches
+  return trimmed
+}
+
+// Normalize to 2-letter country code when possible; fallback to raw value
+function normalizeCountryCode(country: string | null | undefined): string {
+  if (!country || country === '-') return 'unknown'
+  let trimmed = country.trim()
+  trimmed = trimmed.replace(/^[\u{1F1E0}-\u{1F1FF}]{2}\s*/u, '')
+  const upper = trimmed.toUpperCase()
+  if (COUNTRY_NAMES[upper]) return upper.toLowerCase()
+  const match = trimmed.match(/^([A-Z]{2})\s+(.+)$/i)
+  if (match && COUNTRY_NAMES[match[1].toUpperCase()]) return match[1].toLowerCase()
+  const COUNTRY_CODE_ALIASES: Record<string, string> = {
+    'SPANJE': 'es',
+    'LUXEMBOURG': 'lu',
+  }
+  if (COUNTRY_CODE_ALIASES[upper]) return COUNTRY_CODE_ALIASES[upper]
   return trimmed
 }
 
@@ -352,14 +369,14 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Range (Reichweite) distribution - all models (Performance = Max RW, Standard = Standard)
+  // Range (Reichweite) distribution - uses internal value codes (translated in component)
   const RANGE_COLORS: Record<string, string> = {
-    'Maximale Reichweite': 'var(--chart-2)',
-    'Standard': 'var(--chart-3)',
+    'maximale_reichweite': 'var(--chart-2)',
+    'standard': 'var(--chart-3)',
   }
   const rangeCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const range = normalizeOption(order.range, RANGES, 'Unbekannt')
+    const range = order.range?.trim() || 'Unbekannt'
     rangeCounts[range] = (rangeCounts[range] || 0) + 1
   })
   const rangeDistribution = Object.entries(rangeCounts)
@@ -370,10 +387,10 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Country distribution - normalize country codes to full names
+  // Country distribution - normalize to 2-letter codes (translated in component)
   const countryCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const country = normalizeCountry(order.country)
+    const country = normalizeCountryCode(order.country)
     countryCounts[country] = (countryCounts[country] || 0) + 1
   })
   const countryDistribution = Object.entries(countryCounts)
@@ -461,15 +478,16 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Interior distribution (black & white colors, normalized)
+  // Interior distribution - uses value codes (translated in component)
   const INTERIOR_COLORS: Record<string, string> = {
-    'Schwarz': '#1a1a1a',
-    'Weiß': '#e5e5e5',
-    'Unbekannt': '#9ca3af',
+    'black': '#1a1a1a',
+    'white': '#e5e5e5',
+    'cream': '#d4c5a9',
+    'unknown': '#9ca3af',
   }
   const interiorCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const interior = normalizeOption(order.interior, INTERIORS, 'Unbekannt')
+    const interior = order.interior?.trim() || 'unknown'
     interiorCounts[interior] = (interiorCounts[interior] || 0) + 1
   })
   const interiorDistribution = Object.entries(interiorCounts)
@@ -480,10 +498,10 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Autopilot distribution (normalized to labels)
+  // Autopilot distribution - uses value codes (translated in component)
   const autopilotCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const autopilot = normalizeOption(order.autopilot, AUTOPILOT_OPTIONS, 'Kein')
+    const autopilot = order.autopilot?.trim() || 'none'
     autopilotCounts[autopilot] = (autopilotCounts[autopilot] || 0) + 1
   })
   const autopilotDistribution = Object.entries(autopilotCounts)
@@ -494,7 +512,7 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Drive distribution (normalized)
+  // Drive distribution (values are already universal)
   const driveCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
     const drive = normalizeOption(order.drive, DRIVES, 'Unbekannt')
@@ -508,10 +526,10 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Tow hitch (AHK) distribution (normalized to labels)
+  // Tow hitch distribution - uses value codes (translated in component)
   const towHitchCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const towHitch = normalizeOption(order.towHitch, TOW_HITCH_OPTIONS, 'Unbekannt')
+    const towHitch = order.towHitch?.trim() || 'unknown'
     towHitchCounts[towHitch] = (towHitchCounts[towHitch] || 0) + 1
   })
   const towHitchDistribution = Object.entries(towHitchCounts)
@@ -522,10 +540,10 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     }))
     .sort((a, b) => b.count - a.count)
 
-  // Seats (Sitze) distribution - null treated as 5-Sitzer
+  // Seats distribution - uses value codes (translated in component)
   const seatsCounts: Record<string, number> = {}
   filteredOrders.forEach(order => {
-    const seats = normalizeOption(order.seats || '5', SEATS_OPTIONS, '5-Sitzer')
+    const seats = order.seats?.trim() || '5'
     seatsCounts[seats] = (seatsCounts[seats] || 0) + 1
   })
   const seatsDistribution = Object.entries(seatsCounts)
@@ -587,12 +605,12 @@ export function calculateStatistics(orders: Order[], period?: StatsPeriod, vehic
     count: weekdayCounts[i],
   }))
 
-  // Country delivery speed stats (Phase 5)
+  // Country delivery speed stats (Phase 5) - uses codes (translated in component)
   const countryDeliveryMap: Record<string, number[]> = {}
   deliveredOrdersList.forEach(order => {
     const days = calculateDaysBetween(order.orderDate, order.deliveryDate)
     if (days !== null) {
-      const country = normalizeCountry(order.country)
+      const country = normalizeCountryCode(order.country)
       if (!countryDeliveryMap[country]) countryDeliveryMap[country] = []
       countryDeliveryMap[country].push(days)
     }

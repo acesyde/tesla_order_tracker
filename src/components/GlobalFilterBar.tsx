@@ -78,6 +78,7 @@ export function GlobalFilterBar({ orders, filters, onChange }: GlobalFilterBarPr
   const t = useTranslations('statistics')
   const tc = useTranslations('common')
   const tt = useTranslations('table')
+  const to = useTranslations('options')
 
   const availablePeriods = useMemo(() => getAvailablePeriods(orders), [orders])
 
@@ -110,7 +111,8 @@ export function GlobalFilterBar({ orders, filters, onChange }: GlobalFilterBarPr
 
     const rangeOptions = Array.from(ranges).map(v => {
       const r = RANGES.find(r => r.value === v)
-      return { value: v, label: r?.label || v }
+      const rangeKey = `range.${v}`
+      return { value: v, label: to.has(rangeKey) ? to(rangeKey) : (r?.label || v) }
     }).sort((a, b) => a.label.localeCompare(b.label))
 
     const colorOptions = Array.from(colors).map(v => {
@@ -130,12 +132,14 @@ export function GlobalFilterBar({ orders, filters, onChange }: GlobalFilterBarPr
 
     const interiorOptions = Array.from(interiors).map(v => {
       const i = INTERIORS.find(i => i.value === v)
-      return { value: v, label: i?.label || v }
+      const interiorKey = `interior.${v}`
+      return { value: v, label: to.has(interiorKey) ? to(interiorKey) : (i?.label || v) }
     }).sort((a, b) => a.label.localeCompare(b.label))
 
     const countryOptions = Array.from(countryCodes).map(v => {
       const c = COUNTRIES.find(c => c.value === v)
-      return { value: v, label: c?.label || v, flag: c?.flag }
+      const countryKey = `country.${v}`
+      return { value: v, label: to.has(countryKey) ? to(countryKey) : (c?.label || v), flag: c?.flag }
     }).sort((a, b) => a.label.localeCompare(b.label))
 
     const deliveryLocationOptions = Array.from(deliveryLocations)

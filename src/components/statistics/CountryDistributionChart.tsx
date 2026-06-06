@@ -24,7 +24,12 @@ const COLORS = [
 
 export function CountryDistributionChart({ data }: CountryDistributionChartProps) {
   const t = useTranslations('statistics')
-  if (data.length === 0) {
+  const topt = useTranslations('options')
+  const chartData = data.map(d => {
+    const key = `country.${d.name}`
+    return { ...d, name: topt.has(key) ? topt(key) : d.name }
+  })
+  if (chartData.length === 0) {
     return (
       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
         {t('noDataAvailable')}
@@ -33,14 +38,14 @@ export function CountryDistributionChart({ data }: CountryDistributionChartProps
   }
 
   // Dynamic height: 35px per bar, minimum 200px, maximum 400px
-  const chartHeight = Math.min(400, Math.max(200, data.length * 35))
+  const chartHeight = Math.min(400, Math.max(200, chartData.length * 35))
 
   // Size the YAxis label gutter to the longest label so long names (e.g. delivery
   // locations like "München-Parsdorf") don't collide with the bars.
   // ~9px per char at text-xs to cover wide caps + umlauts; clamped to [90, 200].
   const MAX_LABEL_CHARS = 22
   const truncate = (s: string) => (s.length > MAX_LABEL_CHARS ? s.slice(0, MAX_LABEL_CHARS - 1) + '…' : s)
-  const longest = data.reduce((m, d) => Math.max(m, truncate(d.name).length), 0)
+  const longest = chartData.reduce((m, d) => Math.max(m, truncate(d.name).length), 0)
   const yAxisWidth = Math.min(200, Math.max(90, longest * 9 + 10))
 
   return (
@@ -53,7 +58,7 @@ export function CountryDistributionChart({ data }: CountryDistributionChartProps
     >
       <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <BarChart
-          data={data}
+          data={chartData}
           layout="vertical"
           margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
         >
@@ -91,7 +96,7 @@ export function CountryDistributionChart({ data }: CountryDistributionChartProps
             formatter={(value) => [t('ordersCount', { value: String(value) }), t('count')]}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} animationDuration={400} animationEasing="ease-out">
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Bar>
