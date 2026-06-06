@@ -72,7 +72,7 @@
     "delivered": "Livré : {date}",
     "errorGeneratingCode": "Erreur lors de la génération du code",
     "staleBadge": "stale",
-    "staleHint": "This order has not been updated in over 60 days — the data may be outdated.",
+    "staleHint": "Cette commande n'a pas été mise à jour depuis plus de 60 jours — les données peuvent être obsolètes.",
     "statsTitle": "Statistiques",
     "statsSubtitle": "Délais de livraison, configurations et tendances"
   },
@@ -651,8 +651,8 @@
     "basedOn": "Basé sur {count} commandes",
     "notEnoughData": "Données insuffisantes pour la prévision. Sélectionnez un type de véhicule.",
     "lowDataHint": "Peu de données — la prédiction peut être imprécise. Plus de commandes amélioreront la précision.",
-    "basedOnRecent": "Based on {count} deliveries from the last {days} days",
-    "exceedsPessimisticHint": "Your current waiting time ({days} days) already exceeds the pessimistic estimate (75% of comparable deliveries). Current waiting times are longer than the historical distribution — treat this prediction with caution."
+    "basedOnRecent": "Basé sur {count} livraisons des {days} derniers jours",
+    "exceedsPessimisticHint": "Votre temps d'attente actuel ({days} jours) dépasse déjà l'estimation pessimiste (75% des livraisons comparables). Les temps d'attente actuels sont plus longs que la distribution historique — considérez cette prédiction avec prudence."
   },
   "trend": {
     "title": "Tendance de livraison",
@@ -743,9 +743,9 @@
     "orderToDelivery": "Commande → Livraison",
     "orderToPapers": "Commande → Documents",
     "papersToDelivery": "Documents → Livraison",
-    "predictionSampleRecent": "Based on {count} deliveries from the last {days} days",
-    "exceedsPessimisticHint": "Your current waiting time ({days} days) already exceeds the pessimistic estimate. The prediction is based on historical delivery times and is no longer reliable in this situation — refer to the official Tesla delivery window.",
-    "staleHint": "This order has not been updated in over 60 days. The data below may no longer be current."
+    "predictionSampleRecent": "Basé sur {count} livraisons des {days} derniers jours",
+    "exceedsPessimisticHint": "Votre temps d'attente actuel ({days} jours) dépasse déjà l'estimation pessimiste. La prédiction est basée sur les délais de livraison historiques et n'est plus fiable dans cette situation — référez-vous à la fenêtre de livraison officielle Tesla.",
+    "staleHint": "Cette commande n'a pas été mise à jour depuis plus de 60 jours. Les données ci-dessous ne sont peut-être plus à jour."
   },
   "support": {
     "communityMessage": "Ces données sont maintenues par la communauté pour la communauté. Si ce site vous aide, vous pouvez soutenir les coûts de serveur.",
